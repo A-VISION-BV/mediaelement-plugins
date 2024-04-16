@@ -59,10 +59,6 @@ Object.assign(mejs.MepDefaults, {
 	/**
 	 * @type {boolean}
 	 */
-	autoGenerate: false,
-	/**
-	 * @type {boolean}
-	 */
 	autoDash: false,
 	/**
 	 * @type {boolean}
