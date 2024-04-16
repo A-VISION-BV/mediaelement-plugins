@@ -55,6 +55,14 @@ Object.assign(mejs.MepDefaults, {
 	/**
 	 * @type {boolean}
 	 */
+	removeQualityButtonWhenNoOptions: false,
+	/**
+	 * @type {boolean}
+	 */
+	autoGenerate: false,
+	/**
+	 * @type {boolean}
+	 */
 	autoDash: false,
 	/**
 	 * @type {boolean}
@@ -154,6 +162,14 @@ Object.assign(MediaElementPlayer.prototype, {
 					});
 					t.options.autoDash = true;
 					t.generateQualityButton(t, player, media, qualityMap, currentQuality);
+				}
+			}
+			
+			// Remove the button when no qualities are available
+			if (t.options.removeQualityButtonWhenNoOptions) {
+				const qualityLabels = player.qualitiesContainer.querySelectorAll(`.${t.options.classPrefix}qualities-selector-label`);
+				if (qualityLabels.length <= 1) {
+					t.cleanquality(player);
 				}
 			}
 		});
