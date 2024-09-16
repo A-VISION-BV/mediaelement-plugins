@@ -28,17 +28,17 @@ Object.assign(mejs.MepDefaults, {
 		// Return it as named qualities
 		const height = level.height
 		if (height >= 4320) {
-		    return "8K UHD";
+			return "8K UHD";
 		} else if (height >= 2160) {
-		    return "UHD";
+			return "UHD";
 		} else if (height >= 1440) {
-		    return "QHD";
+			return "QHD";
 		} else if (height >= 1080) {
-		    return "FHD";
+			return "FHD";
 		} else if (height >= 720) {
-		    return "HD";
+			return "HD";
 		} else {
-		    return "SD";
+			return "SD";
 		}
 		
 		// return it as 1080p, 720p etc.
