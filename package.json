@@ -43,8 +43,7 @@
     "uglify-js": "^3.0.10"
   },
   "dependencies": {
-    "global": "^4.3.1",
-    "mediaelement": "^5.0.1"
+    "global": "^4.3.1"
   },
   "browserify": {
     "extensions": [
