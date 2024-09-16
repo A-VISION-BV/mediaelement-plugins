@@ -1,12 +1,15 @@
 {
-  "name": "mediaelement-plugins",
+  "name": "@A-VISION-BV/mediaelement-plugins",
   "version": "4.0.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mediaelement/mediaelement-plugins.git"
+    "url": "https://github.com/A-VISION-BV/mediaelement-plugins.git"
   },
   "bugs": {
-    "url": "https://github.com/mediaelement/mediaelement-plugins/issues"
+    "url": "https://github.com/A-VISION-BV/mediaelement-plugins/issues"
+  },
+  "publishConfig": {
+    "@A-VISION-BV:registry": "https://npm.pkg.github.com"
   },
   "private": false,
   "devDependencies": {
