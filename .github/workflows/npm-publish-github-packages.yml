@@ -1,0 +1,49 @@
+name: Publish package to GitHub Packages
+on:
+  release:
+    types: [published]
+  push:
+    branches: 
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      # Setup .npmrc file to publish to GitHub Packages
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          registry-url: 'https://npm.pkg.github.com'
+          # Defaults to the user or organization that owns the workflow file
+          scope: '@A-VISION-BV'
+      - run: npm ci
+      - run: grunt
+      
+      - name: create new version var
+        run: |
+          NEW_VERSION=$(node -p "require('./package-lock.json').version")
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+        
+      - name: Create ZIP package
+        run: |
+          NEW_VERSION=${{ env.NEW_VERSION }}
+          cd dist && zip -r ../mediaelement-plugins-dist-${NEW_VERSION}.zip ./
+      
+      - name: Create a new draft release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ env.NEW_VERSION }}
+          name: ${{ env.NEW_VERSION }}
+          artifactErrorsFailBuild: true
+          artifacts: "mediaelement-plugins-dist-${{ env.NEW_VERSION }}.zip"
+          draft: true
+          generateReleaseNotes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
