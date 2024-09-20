@@ -71,7 +71,7 @@ Object.assign(MediaElementPlayer.prototype, {
 		// And always include the defaultSpeed
 		{
 			const length = t.options.speeds.length;
-			for(let i = 0; i < length; i++) {
+			for (let i = 0; i < length; i++) {
 				const speed = t.options.speeds[i];
 				
 				if (typeof speed === 'string') {
@@ -114,13 +114,15 @@ Object.assign(MediaElementPlayer.prototype, {
 		
 		// Build up the main button and the <div><ul></ul></div> next to it within the player bar.
 		{
-			player.speedButton = document.createElement('div');
-			player.speedButton.className = `${t.options.classPrefix}button ${t.options.classPrefix}speed-button`;
+			player.speedContainer = document.createElement('div');
+			player.speedContainer.className = `${t.options.classPrefix}button ${t.options.classPrefix}speed-button`;
 			
-			player.speedButton.innerHTML = 
+			const generateId = Date.now() + '.' + Math.floor(Math.random() * 100);
+			
+			player.speedContainer.innerHTML = 
 			'<button ' + 
 				'type="button" ' +
-				`aria-controls="${t.id}" `+
+				`aria-controls="${generateId}" `+
 				'aria-expanded="false" ' +
 				`title="${speedTitle}" ` +
 				`aria-label="${speedTitle}" ` +
@@ -129,17 +131,17 @@ Object.assign(MediaElementPlayer.prototype, {
 				getSpeedNameFromValue(t.options.defaultSpeed) +
 			'</button>' +
 			`<div class="${t.options.classPrefix}speed-selector ${t.options.classPrefix}offscreen">` +
-				`<ul class="${t.options.classPrefix}speed-selector-list"></ul>` +
-			'</div>' +
+				`<ul id="${generateId}" class="${t.options.classPrefix}speed-selector-list" tabindex="-1"></ul>` +
+			'</div>'
 			
 			// Add this button into the DOM
-			t.addControlElement(player.speedButton, 'speed');
+			t.addControlElement(player.speedContainer, 'speed');
 			
 			
 			// Add speed li items.
 			let ulHTML = ''
 			const length = speeds.length;
-			for(let i = 0; i < length; i++) {
+			for (let i = 0; i < length; i++) {
 				const speed = speeds[i]
 				
 				const inputId = `${t.id}-speed-${speeds[i].value}`;
@@ -149,7 +151,7 @@ Object.assign(MediaElementPlayer.prototype, {
 				const liHTML = 
 				`<li class="${t.options.classPrefix}speed-selector-list-item">` +
 					`<input `+
-						`class="${t.options.classPrefix}speed-selector-input" `+
+						`class="${t.options.classPrefix}speed-selector-input ${(speedIsDefaultSpeed ? `${t.options.classPrefix}speed-selected-input` : '')}" ` +
 						`type="radio" `+
 						`name="${t.id}_speed"` +
 						`disabled="disabled" `+
@@ -159,8 +161,7 @@ Object.assign(MediaElementPlayer.prototype, {
 					'/>' +
 					'<label ' +
 						`for="${inputId}" `+
-						`class="${t.options.classPrefix}speed-selector-label` +
-						`${(speedIsDefaultSpeed ? ` ${t.options.classPrefix}speed-selected` : '')}"`+
+						`class="${t.options.classPrefix}speed-selector-label` + `${(speedIsDefaultSpeed ? ` ${t.options.classPrefix}speed-selected` : '')}"`+
 					'>' +
 						`${speed.name}`+
 					'</label>' +
@@ -170,38 +171,55 @@ Object.assign(MediaElementPlayer.prototype, {
 				
 			}
 			
-			player.speedButton.querySelector('ul').innerHTML = ulHTML
+			player.speedContainer.querySelector('ul').innerHTML = ulHTML
 		}
 		
-		player.speedSelector = player.speedButton.querySelector(`.${t.options.classPrefix}speed-selector`)
+		player.speedSelector = player.speedContainer.querySelector(`.${t.options.classPrefix}speed-selector`)
 		
 		// Enable inputs after they have been appended to controls to avoid tab and up/down arrow focus issues
 		const 
-			radios = player.speedButton.querySelectorAll('input[type="radio"]'),
-			labels = player.speedButton.querySelectorAll(`.${t.options.classPrefix}speed-selector-label`),
-			speedList = player.speedButton.querySelector(`.${t.options.classPrefix}speed-selector-list`)
+			speedButton = player.speedContainer.querySelector('button'),
+			radios = player.speedContainer.querySelectorAll('input[type="radio"]'),
+			labels = player.speedContainer.querySelectorAll(`.${t.options.classPrefix}speed-selector-label`),
+			speedList = player.speedContainer.querySelector(`.${t.options.classPrefix}speed-selector-list`)
 		;
 		
 		// Handle the events.
 		let menuIsHidden = true;
 		
+		let lastShowChange = Date.now();
 		function showMenu() {
+			const now = Date.now();
+			const diff = now - lastShowChange;
+			if(diff < 16) {
+				return;
+			}
+			lastShowChange = now;
+			
 			// show the ul menu.
 			mejs.Utils.removeClass(player.speedSelector, `${t.options.classPrefix}offscreen`);
 			player.speedSelector.style.height = `${player.speedSelector.querySelector('ul').offsetHeight}px`;
 			player.speedSelector.style.top = `${(-1 * Number(player.speedSelector.offsetHeight))}px`;
-			player.speedButton.setAttribute('aria-expanded', 'true');
+			speedButton.setAttribute('aria-expanded', 'true');
 			
-			// focus first radio input
-			
+			// focus on selected radio input
+			speedList.querySelector('.' + t.options.classPrefix + 'speed-selected-input').focus();
 			
 			menuIsHidden = false;
 		}
 		
 		function hideMenu() {
+			const now = Date.now();
+			const diff = now - lastShowChange;
+			if(diff < 16) {
+				return;
+			}
+			lastShowChange = now;
+			
 			// hide ul menu
 			mejs.Utils.addClass(player.speedSelector, `${t.options.classPrefix}offscreen`);
-			player.speedButton.setAttribute('aria-expanded', 'true');
+			speedButton.setAttribute('aria-expanded', 'true');
+			speedButton.focus()
 			
 			menuIsHidden = true;
 		}
@@ -215,65 +233,34 @@ Object.assign(MediaElementPlayer.prototype, {
 			}
 		}
 		
-		player.speedButton.addEventListener('mouseenter', showMenu);
-		// player.speedButton.addEventListener('focusin', showMenu);
 		
-		player.speedButton.addEventListener('mouseleave', hideMenu);
+		speedButton.addEventListener('mouseenter', showMenu);
+		
+		player.speedContainer.addEventListener('mouseleave', hideMenu);
 		speedList.addEventListener('focusout', (event) => {
-			if (!player.speedButton.contains(event.relatedTarget)) {
+			if (!player.speedContainer.contains(event.relatedTarget)) {
 				hideMenu();
 			}
 		});
 		
-		player.speedButton.addEventListener('click', hideShowMenu);
+		speedButton.addEventListener('click', hideShowMenu);
 		
+		
+		// Close with Escape key.
+		// Allow up/down arrow to change the selected radio without changing the volume.
+		player.speedContainer.addEventListener('keydown', (event) => {
+			if(event.key === "Escape"){
+				hideMenu();
+			}
+
+			event.stopPropagation();
+		});
 		
 		// handle speed change when the value of the radio changes.
 		for (let i = 0, total = radios.length; i < total; i++) {
 			const radio = radios[i];
 			radio.disabled = false;
-			radio.addEventListener('change', function () {
-				
-				
-				// loop through all of the options.
-				for(let i = 0; i < total; i++) {
-					const radio = radios[i]
-					
-					// remove the speed-selected class from the label
-					const siblings = mejs.Utils.siblings(radio, (el) => mejs.Utils.hasClass(el, `${t.options.classPrefix}speed-selector-label`));
-					for (let i = 0, total = siblings.length; i < total; i++) {
-						mejs.Utils.removeClass(siblings[i], `${t.options.classPrefix}speed-selected`);
-					}
-					
-					if(radio.checked) {
-						
-						
-						// add the speed-selected class to the label
-						const siblings = mejs.Utils.siblings(radio, (el) => mejs.Utils.hasClass(el, `${t.options.classPrefix}speed-selector-label`));
-						for (let i = 0, total = siblings.length; i < total; i++) {
-							mejs.Utils.addClass(siblings[i], `${t.options.classPrefix}speed-selected`);
-						}
-						
-						// set the speed onto the media
-						const newSpeed = Number(radio.value)
-						media.playbackRate = newSpeed
-						currentPlaybackSpeed = newSpeed
-					}
-					
-				}
-				// debugger
-				/*const 
-					radioEl = this,
-					newSpeed = Number(radioEl.value)
-				;
-				
-				// set the speed.
-				currentPlaybackSpeed = newSpeed;
-				media.playbackRate = newSpeed
-				*/
-				// debugger
-				// t.changeSpeed(this, player, )
-			});
+			radio.addEventListener('change', handleChangeSpeed);
 		}
 		
 		// simulate clicks on radio elements.
@@ -283,14 +270,51 @@ Object.assign(MediaElementPlayer.prototype, {
 					radio = mejs.Utils.siblings(this, (el) => el.tagName === 'INPUT')[0],
 					event = mejs.Utils.createEvent('click', radio)
 				;
+				
 				radio.dispatchEvent(event);
 			});
 		}
 		
 		
 		
-		// @TODO: make events work.
+		media.addEventListener('loadedmetadata', () => {
+			if (currentPlaybackSpeed) {
+				media.playbackRate = Number(currentPlaybackSpeed);
+			}
+		});
 		
+		
+		function handleChangeSpeed() {
+			const total = radios.length;
+			for(let i = 0; i < total; i++) {
+				const radio = radios[i]
+				
+				// remove the speed-selected class from the previous selected speed label
+				mejs.Utils.removeClass(radio, `${t.options.classPrefix}speed-selected-input`);
+				const siblings = mejs.Utils.siblings(radio, (el) => mejs.Utils.hasClass(el, `${t.options.classPrefix}speed-selector-label`));
+				for (let i = 0, total = siblings.length; i < total; i++) {
+					mejs.Utils.removeClass(siblings[i], `${t.options.classPrefix}speed-selected`);
+				}
+				
+				// handle the new speed.
+				if (radio.checked) {
+					
+					mejs.Utils.addClass(radio, `${t.options.classPrefix}speed-selected-input`);
+					
+					// add the speed-selected class to the label
+					const siblings = mejs.Utils.siblings(radio, (el) => mejs.Utils.hasClass(el, `${t.options.classPrefix}speed-selector-label`));
+					for (let i = 0, total = siblings.length; i < total; i++) {
+						mejs.Utils.addClass(siblings[i], `${t.options.classPrefix}speed-selected`);
+					}
+					
+					// set the speed onto the media
+					const newSpeed = Number(radio.value)
+					media.playbackRate = newSpeed
+					currentPlaybackSpeed = newSpeed
+					speedButton.innerHTML = getSpeedNameFromValue(newSpeed)
+				}
+			}
+		}
 		
 		// gets the speed name from a speed value.
 		function getSpeedNameFromValue (speedValue) {
@@ -316,8 +340,8 @@ Object.assign(MediaElementPlayer.prototype, {
 	 */
 	cleanspeed (player) {
 		if (player) {
-			if (player.speedButton) {
-				player.speedButton.parentNode.removeChild(player.speedButton);
+			if (player.speedContainer) {
+				player.speedContainer.parentNode.removeChild(player.speedContainer);
 			}
 			if (player.speedSelector) {
 				player.speedSelector.parentNode.removeChild(player.speedSelector);
