@@ -198,7 +198,8 @@ Object.assign(MediaElementPlayer.prototype, {
 		currentQuality = defaultValue;
 
 		// Get initial quality
-		const generateId = Math.floor(Math.random() * 100);
+		const generateId = Date.now() + '.' + Math.floor(Math.random() * 100);
+		
 		const iconHtml = `<svg xmlns="http://www.w3.org/2000/svg" id="${generateId}" class="${t.options.classPrefix}" aria-hidden="true" focusable="false">
 			<use xlink:href="${t.options.iconPathQuality}#default-icon"></use></svg>`;
 		player.qualitiesContainer = document.createElement('div');
