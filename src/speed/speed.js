@@ -203,7 +203,10 @@ Object.assign(MediaElementPlayer.prototype, {
 			speedButton.setAttribute('aria-expanded', 'true');
 			
 			// focus on selected radio input
-			speedList.querySelector('.' + t.options.classPrefix + 'speed-selected-input').focus();
+			const selectedSpeedInput = speedList.querySelector('.' + t.options.classPrefix + 'speed-selected-input')
+			if(selectedSpeedInput != undefined) {
+				selectedSpeedInput.focus();
+			}
 			
 			menuIsHidden = false;
 		}
@@ -280,14 +283,22 @@ Object.assign(MediaElementPlayer.prototype, {
 		media.addEventListener('loadedmetadata', () => {
 			if (currentPlaybackSpeed) {
 				media.playbackRate = Number(currentPlaybackSpeed);
+				speedButton.innerHTML = getSpeedNameFromValue(currentPlaybackSpeed)
 			}
 		});
 		
-		
-		function handleChangeSpeed() {
+		media.addEventListener('ratechange', () => {
+			const numericPlaybackRate = Number(media.playbackRate);
+			if (numericPlaybackRate != currentPlaybackSpeed) {
+				currentPlaybackSpeed = numericPlaybackRate;
+			}
+			speedButton.innerHTML = getSpeedNameFromValue(currentPlaybackSpeed);
+			
+			
+			
 			const total = radios.length;
 			for(let i = 0; i < total; i++) {
-				const radio = radios[i]
+				const radio = radios[i];
 				
 				// remove the speed-selected class from the previous selected speed label
 				mejs.Utils.removeClass(radio, `${t.options.classPrefix}speed-selected-input`);
@@ -296,8 +307,10 @@ Object.assign(MediaElementPlayer.prototype, {
 					mejs.Utils.removeClass(siblings[i], `${t.options.classPrefix}speed-selected`);
 				}
 				
-				// handle the new speed.
-				if (radio.checked) {
+				const radioSpeed = Number(radio.value)
+				if(radioSpeed == numericPlaybackRate) {
+					
+					radio.checked = true;
 					
 					mejs.Utils.addClass(radio, `${t.options.classPrefix}speed-selected-input`);
 					
@@ -306,12 +319,23 @@ Object.assign(MediaElementPlayer.prototype, {
 					for (let i = 0, total = siblings.length; i < total; i++) {
 						mejs.Utils.addClass(siblings[i], `${t.options.classPrefix}speed-selected`);
 					}
+				}
+			}
+			
+		});
+		
+		
+		function handleChangeSpeed() {
+			const total = radios.length;
+			for(let i = 0; i < total; i++) {
+				const radio = radios[i]
+				
+				// handle the new speed.
+				if (radio.checked) {
 					
 					// set the speed onto the media
 					const newSpeed = Number(radio.value)
 					media.playbackRate = newSpeed
-					currentPlaybackSpeed = newSpeed
-					speedButton.innerHTML = getSpeedNameFromValue(newSpeed)
 				}
 			}
 		}
