@@ -42,8 +42,8 @@
 
 .mejs__speed-selector-list-item,
 .mejs-speed-selector-list-item {
-    color: #fff;
     border: 0.06rem solid transparent;
+    color: #fff;
     display: block;
     list-style-type: none !important;
     margin: 0 0 6px;
