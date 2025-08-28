@@ -1,24 +1,24 @@
-.mejs__speed-selector.mejs__offscreen {
+.mejs__nmgt-selector.mejs__offscreen {
     display: none;
 }
 
-.mejs__speed-button,
-.mejs-speed-button {
+.mejs__nmgt-button,
+.mejs-nmgt-button {
     position: relative;
 }
 
-.mejs__speed-button > button,
-.mejs-speed-button > button {
+.mejs__nmgt-button > button,
+.mejs-nmgt-button > button {
     background: transparent;
-    color: #fff;
+    color: white;
     font-size: 11px;
     line-height: normal;
     margin: 11px 0 0;
     width: 36px;
 }
 
-.mejs__speed-selector,
-.mejs-speed-selector {
+.mejs__nmgt-selector,
+.mejs-nmgt-selector {
     background: rgba(50, 50, 50, 0.7);
     border: solid 1px transparent;
     border-radius: 0;
@@ -31,8 +31,8 @@
     width: 60px;
 }
 
-.mejs__speed-selector-list,
-.mejs-speed-selector-list  {
+.mejs__nmgt-selector-list,
+.mejs-nmgt-selector-list  {
     display: block;
     list-style-type: none !important;
     margin: 0;
@@ -40,8 +40,8 @@
     padding: 0;
 }
 
-.mejs__speed-selector-list-item,
-.mejs-speed-selector-list-item {
+.mejs__nmgt-selector-list-item,
+.mejs-nmgt-selector-list-item {
     border: 0.06rem solid transparent;
     color: #fff;
     display: block;
@@ -51,28 +51,35 @@
     padding: 0 10px;
 }
 
-.mejs__speed-selector-list-item:hover,
-.mejs-speed-selector-list-item:hover {
+.mejs__nmgt-selector-list-item:hover,
+.mejs-nmgt-selector-list-item:hover {
     background-color: rgb(200, 200, 200) !important;
     background-color: rgba(255, 255, 255, 0.4) !important;
 }
 
-.mejs__speed-selector-list-item:focus-within,
-.mejs-speed-selector-list-item:focus-within {
+.mejs__nmgt-selector-list-item:focus-within,
+.mejs-nmgt-selector-list-item:focus-within {
     border-color: #fff;
 }
 
-.mejs__speed-selector-input,
-.mejs-speed-selector-input {
+.mejs__nmgt-selector-input,
+.mejs-nmgt-selector-input {
+    /* stylelint-disable-next-line property-no-unknown */
+    accent-color: black;
     clear: both;
     float: left;
-    left: -1000px;
+    height: 15px;
+    left: 2px;
     margin: 3px 3px 0 5px;
     position: absolute;
+    top: 11px;
+    width: 15px;
 }
 
-.mejs__speed-selector-label,
-.mejs-speed-selector-label {
+
+
+.mejs__nmgt-selector-label,
+.mejs-nmgt-selector-label {
     color: white;
     cursor: pointer;
     float: left;
@@ -83,7 +90,16 @@
     width: 60px;
 }
 
-.mejs__speed-selected,
-.mejs-speed-selected {
-    color: rgba(33, 248, 248, 1);
+.mejs__nmgt-selected,
+.mejs-nmgt-selected {
+    /* color: rgba(33, 248, 248, 1); */
+    font-weight: 700;
+}
+
+
+.mejs__nmgt-button {
+    width: 70px;
+}
+.mejs__nmgt-button > button {
+    width: 70px;
 }

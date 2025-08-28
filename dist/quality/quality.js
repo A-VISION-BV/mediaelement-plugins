@@ -17,8 +17,28 @@ Object.assign(mejs.MepDefaults, {
 	defaultQuality: 'auto',
 
 	qualityText: null,
+	autoQualityLabelTextGenerator: function autoQualityLabelTextGenerator(level) {
+		var height = level.height;
+		if (height >= 4320) {
+			return "8K UHD";
+		} else if (height >= 2160) {
+			return "UHD";
+		} else if (height >= 1440) {
+			return "QHD";
+		} else if (height >= 1080) {
+			return "FHD";
+		} else if (height >= 720) {
+			return "HD";
+		} else {
+			return "SD";
+		}
+	},
 
-	autoGenerate: false,
+	autoGenerateQualityOptionsFromManifest: false,
+
+	hslQualityChangeStrategy: 'nextLevel',
+
+	removeQualityButtonWhenNoOptions: false,
 
 	autoDash: false,
 
@@ -35,13 +55,17 @@ Object.assign(MediaElementPlayer.prototype, {
 		    children = t.mediaFiles ? t.mediaFiles : t.node.children,
 		    qualityMap = new Map();
 
+		if (t.options.autoGenerate !== undefined) {
+			t.options.autoGenerateQualityOptionsFromManifest = t.options.autoGenerate;
+		}
+
 		for (var i = 0, total = children.length; i < total; i++) {
 			var mediaNode = children[i];
 			var quality = mediaNode instanceof HTMLElement ? mediaNode.getAttribute('data-quality') : mediaNode['data-quality'];
 
 			if (quality === 'undefined') {
 				quality = 'Auto';
-				t.options.autoGenerate = true;
+				t.options.autoGenerateQualityOptionsFromManifest = true;
 			}
 
 			if (t.mediaFiles) {
@@ -74,10 +98,9 @@ Object.assign(MediaElementPlayer.prototype, {
 		media.addEventListener('loadedmetadata', function () {
 			if (!!media.hlsPlayer) {
 				var levels = media.hlsPlayer.levels;
-				if (t.options.autoGenerate && levels.length > 1) {
+				if (t.options.autoGenerateQualityOptionsFromManifest && levels.length > 1) {
 					levels.forEach(function (level) {
-						var height = level.height;
-						var quality = t.getQualityFromHeight(height);
+						var quality = t.options.autoQualityLabelTextGenerator(level);
 						t.addValueToKey(qualityMap, quality, '');
 					});
 					t.options.autoHLS = true;
@@ -85,14 +108,20 @@ Object.assign(MediaElementPlayer.prototype, {
 				}
 			} else if (!!media.dashPlayer) {
 				var bitrates = media.dashPlayer.getBitrateInfoListFor("video");
-				if (t.options.autoGenerate && bitrates.length > 1) {
+				if (t.options.autoGenerateQualityOptionsFromManifest && bitrates.length > 1) {
 					bitrates.forEach(function (level) {
-						var height = level.height;
-						var quality = t.getQualityFromHeight(height);
+						var quality = t.options.autoQualityLabelTextGenerator(level);
 						t.addValueToKey(qualityMap, quality, '');
 					});
 					t.options.autoDash = true;
 					t.generateQualityButton(t, player, media, qualityMap, currentQuality);
+				}
+			}
+
+			if (t.options.removeQualityButtonWhenNoOptions) {
+				var qualityLabels = player.qualitiesContainer.querySelectorAll('.' + t.options.classPrefix + 'qualities-selector-label');
+				if (qualityLabels.length <= 1) {
+					t.cleanquality(player);
 				}
 			}
 		});
@@ -121,7 +150,8 @@ Object.assign(MediaElementPlayer.prototype, {
 		    defaultValue = getQualityNameFromValue(t.options.defaultQuality);
 		currentQuality = defaultValue;
 
-		var generateId = Math.floor(Math.random() * 100);
+		var generateId = Date.now() + '.' + Math.floor(Math.random() * 100);
+
 		var iconHtml = '<svg xmlns="http://www.w3.org/2000/svg" id="' + generateId + '" class="' + t.options.classPrefix + '" aria-hidden="true" focusable="false">\n\t\t\t<use xlink:href="' + t.options.iconPathQuality + '#default-icon"></use></svg>';
 		player.qualitiesContainer = document.createElement('div');
 		player.qualitiesContainer.className = t.options.classPrefix + 'button ' + t.options.classPrefix + 'qualities-button';
@@ -146,7 +176,15 @@ Object.assign(MediaElementPlayer.prototype, {
 		    radios = player.qualitiesContainer.querySelectorAll('input[type="radio"]'),
 		    labels = player.qualitiesContainer.querySelectorAll('.' + t.options.classPrefix + 'qualities-selector-label');
 
+		var lastShowChange = Date.now();
 		function hideSelector() {
+			var now = Date.now();
+			var diff = now - lastShowChange;
+			if (diff < 16) {
+				return;
+			}
+			lastShowChange = now;
+
 			mejs.Utils.addClass(qualitiesSelector, t.options.classPrefix + 'offscreen');
 			qualityButton.setAttribute('aria-expanded', 'false');
 			qualityButton.focus();
@@ -154,6 +192,13 @@ Object.assign(MediaElementPlayer.prototype, {
 		}
 
 		function showSelector() {
+			var now = Date.now();
+			var diff = now - lastShowChange;
+			if (diff < 16) {
+				return;
+			}
+			lastShowChange = now;
+
 			mejs.Utils.removeClass(qualitiesSelector, t.options.classPrefix + 'offscreen');
 			qualitiesSelector.style.height = qualitiesSelector.querySelector('ul').offsetHeight + 'px';
 			qualitiesSelector.style.top = -1 * parseFloat(qualitiesSelector.offsetHeight) + 'px';
@@ -321,13 +366,14 @@ Object.assign(MediaElementPlayer.prototype, {
 		}
 	},
 	switchHLSQuality: function switchHLSQuality(player, media) {
+		var t = this;
 		var radios = player.qualitiesContainer.querySelectorAll('input[type="radio"]');
 		for (var index = 0; index < radios.length; index++) {
 			if (radios[index].checked) {
 				if (index === 0) {
-					media.hlsPlayer.currentLevel = -1;
+					media.hlsPlayer[t.options.hslQualityChangeStrategy] = -1;
 				} else {
-					media.hlsPlayer.currentLevel = index - 1;
+					media.hlsPlayer[t.options.hslQualityChangeStrategy] = index - 1;
 				}
 			}
 		}
@@ -355,21 +401,6 @@ Object.assign(MediaElementPlayer.prototype, {
 		}
 
 		return newQuality;
-	},
-	getQualityFromHeight: function getQualityFromHeight(height) {
-		if (height >= 4320) {
-			return "8K UHD";
-		} else if (height >= 2160) {
-			return "UHD";
-		} else if (height >= 1440) {
-			return "QHD";
-		} else if (height >= 1080) {
-			return "FHD";
-		} else if (height >= 720) {
-			return "HD";
-		} else {
-			return "SD";
-		}
 	}
 });
 
