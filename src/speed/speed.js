@@ -54,6 +54,8 @@ Object.assign(MediaElementPlayer.prototype, {
 			return;
 		}
 		
+		const speedSVGIcon = `<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#ffffff"><path d="M183.85-241.85q-36.08-44-56.58-92.8-20.5-48.81-26.5-105.35H162q6 44 22 83.5t42 72.5l-42.15 42.15ZM100.77-520q7.23-56.54 27.12-105.15 19.88-48.62 55.96-92.62L226-675.62q-26 33-42 72.31T162-520h-61.23ZM438-102q-58.85-7.16-106.19-27.66-47.35-20.5-91.96-54.96L282-228q33.85 25.62 72.73 42.81Q393.62-168 438-162v60ZM284-732.38l-43.38-43.39q44.61-34.46 91.96-54.77Q379.92-850.84 440-858v60q-45 6-84.19 23T284-732.38Zm106 413.92v-323.08L641.54-480 390-318.46ZM520-102v-60q121-17 200.5-107T800-480q0-121-79.5-211T520-798v-60q145.92 15.85 242.96 123.46Q860-626.92 860-480t-97.04 254.54Q665.92-117.85 520-102Z"/></svg>`
+		
 		const
 			speeds = [],
 			speedTitle = (
@@ -128,7 +130,7 @@ Object.assign(MediaElementPlayer.prototype, {
 				`aria-label="${speedTitle}" ` +
 				'tabindex="0"' +
 			'>'+
-				getSpeedNameFromValue(t.options.defaultSpeed) +
+				speedSVGIcon + `<span class="${t.options.classPrefix}speed-btn-label">${getSpeedNameFromValue(t.options.defaultSpeed)}</span>` +
 			'</button>' +
 			`<div class="${t.options.classPrefix}speed-selector ${t.options.classPrefix}offscreen">` +
 				`<ul id="${generateId}" class="${t.options.classPrefix}speed-selector-list" tabindex="-1"></ul>` +
@@ -179,6 +181,7 @@ Object.assign(MediaElementPlayer.prototype, {
 		// Enable inputs after they have been appended to controls to avoid tab and up/down arrow focus issues
 		const 
 			speedButton = player.speedContainer.querySelector('button'),
+			speedButtonLabel = speedButton.querySelector(`.${t.options.classPrefix}speed-btn-label`),
 			radios = player.speedContainer.querySelectorAll('input[type="radio"]'),
 			labels = player.speedContainer.querySelectorAll(`.${t.options.classPrefix}speed-selector-label`),
 			speedList = player.speedContainer.querySelector(`.${t.options.classPrefix}speed-selector-list`)
@@ -279,11 +282,14 @@ Object.assign(MediaElementPlayer.prototype, {
 		}
 		
 		
+		function updateSpeedButtonLabel() {
+			speedButtonLabel.innerHTML = getSpeedNameFromValue(currentPlaybackSpeed)
+		}
 		
 		media.addEventListener('loadedmetadata', () => {
 			if (currentPlaybackSpeed) {
 				media.playbackRate = Number(currentPlaybackSpeed);
-				speedButton.innerHTML = getSpeedNameFromValue(currentPlaybackSpeed)
+				updateSpeedButtonLabel()
 			}
 		});
 		
@@ -292,9 +298,7 @@ Object.assign(MediaElementPlayer.prototype, {
 			if (numericPlaybackRate != currentPlaybackSpeed) {
 				currentPlaybackSpeed = numericPlaybackRate;
 			}
-			speedButton.innerHTML = getSpeedNameFromValue(currentPlaybackSpeed);
-			
-			
+			updateSpeedButtonLabel()
 			
 			const total = radios.length;
 			for(let i = 0; i < total; i++) {

@@ -59,6 +59,7 @@ module.exports = function (grunt) {
 					'dist/skip-back/skip-back.js': 'src/skip-back/skip-back.js',
 					'dist/source-chooser/source-chooser.js': 'src/source-chooser/source-chooser.js',
 					'dist/speed/speed.js': 'src/speed/speed.js',
+					'dist/nmgt/nmgt.js': 'src/nmgt/nmgt.js',
 					'dist/stop/stop.js': 'src/stop/stop.js',
 					'dist/vrview/vrview.js': 'src/vrview/vrview.js',
 					'dist/markersrolls/markersrolls.js': 'src/markersrolls/markersrolls.js',
@@ -126,6 +127,7 @@ module.exports = function (grunt) {
 					'dist/skip-back/skip-back.css': 'src/skip-back/skip-back.css',
 					'dist/source-chooser/source-chooser.css': 'src/source-chooser/source-chooser.css',
 					'dist/speed/speed.css': 'src/speed/speed.css',
+					'dist/nmgt/nmgt.css': 'src/nmgt/nmgt.css',
 					'dist/stop/stop.css': 'src/stop/stop.css',
 					'dist/vrview/vrview.css': 'src/vrview/vrview.css'
 				}
@@ -155,6 +157,7 @@ module.exports = function (grunt) {
 					'dist/skip-back/skip-back.min.css': 'dist/skip-back/skip-back.css',
 					'dist/source-chooser/source-chooser.min.css': 'dist/source-chooser/source-chooser.css',
 					'dist/speed/speed.min.css': 'dist/speed/speed.css',
+					'dist/nmgt/nmgt.min.css': 'dist/nmgt/nmgt.css',
 					'dist/stop/stop.min.css': 'dist/stop/stop.css',
 					'dist/vrview/vrview.min.css': 'dist/vrview/vrview.css'
 				}
