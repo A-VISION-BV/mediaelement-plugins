@@ -8,7 +8,7 @@
  */
 
 // Translations (English required)
-mejs.i18n.en['mejs.nmgt-chooser'] = 'NmG/NGT Chooser';
+mejs.i18n.en['mejs.nmgt-chooser'] = 'NmG / NGT Chooser';
 
 // Feature configuration
 Object.assign(mejs.MepDefaults, {
@@ -76,7 +76,7 @@ Object.assign(MediaElementPlayer.prototype, {
 				'type="button" ' +
 				`aria-controls="${generateId}" ` + 
 				'aria-expanded="false" ' +
-				`title=${nmgtTitle} ` +
+				`title="${nmgtTitle}" ` +
 				`aria-label="${nmgtTitle}" ` +
 				'tabindex="0"' +
 			'>' + 
@@ -342,6 +342,12 @@ Object.assign(MediaElementPlayer.prototype, {
 		}
 		
 		function getDefaultStreamName() {
+			const startSrcDataAttr = player.node.dataset.startSrc
+			
+			if(startSrcDataAttr == '1') {
+				return ngtName()
+			}
+			
 			return nmgName()
 		}
 	},
