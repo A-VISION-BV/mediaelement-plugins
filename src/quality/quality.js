@@ -100,8 +100,9 @@ Object.assign(MediaElementPlayer.prototype, {
 		for (let i = 0, total = children.length; i < total; i++) {
 			const mediaNode = children[i];
 			let quality = mediaNode instanceof HTMLElement ? mediaNode.getAttribute('data-quality') : mediaNode['data-quality'];
-
-			if (quality === 'undefined') {
+			
+			
+			if (quality === 'undefined' || quality == null) {
 				quality = 'Auto';
 				t.options.autoGenerateQualityOptionsFromManifest = true;
 			}

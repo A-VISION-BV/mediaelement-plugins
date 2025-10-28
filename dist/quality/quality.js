@@ -63,7 +63,7 @@ Object.assign(MediaElementPlayer.prototype, {
 			var mediaNode = children[i];
 			var quality = mediaNode instanceof HTMLElement ? mediaNode.getAttribute('data-quality') : mediaNode['data-quality'];
 
-			if (quality === 'undefined') {
+			if (quality === 'undefined' || quality == null) {
 				quality = 'Auto';
 				t.options.autoGenerateQualityOptionsFromManifest = true;
 			}
