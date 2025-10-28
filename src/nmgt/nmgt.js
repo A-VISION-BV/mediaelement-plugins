@@ -334,11 +334,16 @@ Object.assign(MediaElementPlayer.prototype, {
 			return 'NGT'
 		}
 		
+		// In the past, we thought that because we have the space, this should be written out fully
+		// but that wasn't neccesary anymore, so these can be the same.
+		// I decided to keep it this way however, so that we could change it if it was deemed neccesary.
 		function nmgFullname() {
-			return 'Nederlands met Gebaren'
+			// return 'Nederlands met Gebaren'
+			return nmgName()
 		}
 		function ngtFullname() {
-			return 'Nederlandse Gebarentaal'
+			// return 'Nederlandse Gebarentaal'
+			return ngtName()
 		}
 		
 		function getDefaultStreamName() {

@@ -273,10 +273,10 @@ Object.assign(MediaElementPlayer.prototype, {
 		}
 
 		function nmgFullname() {
-			return 'Nederlands met Gebaren';
+			return nmgName();
 		}
 		function ngtFullname() {
-			return 'Nederlandse Gebarentaal';
+			return ngtName();
 		}
 
 		function getDefaultStreamName() {
