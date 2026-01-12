@@ -280,12 +280,6 @@ Object.assign(MediaElementPlayer.prototype, {
 		}
 
 		function getDefaultStreamName() {
-			var startSrcDataAttr = player.node.dataset.startSrc;
-
-			if (startSrcDataAttr == '1') {
-				return ngtName();
-			}
-
 			return nmgName();
 		}
 	},
