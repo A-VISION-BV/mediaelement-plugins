@@ -30,7 +30,7 @@ Instructions for the Maintainer
 
   grunt
 
-- add/commit/push all including build/
+- add/commit/push all including dist/
 
 ```
 git add --all

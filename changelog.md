@@ -1,5 +1,11 @@
 # Version History
 
+## *5.1.0 (2026/01/30)*
+* `mediaelement` is now a `peerDependency` of this project. This will prevent multiple installations of `mediaelement` in your project.
+### A11Y PLUGIN
+* Demo page was updated with working media assets. Fixes #261
+* Plugin is now cleaned up properly when the player is destroyed.
+
 ## *5.0.0 (2024/09/12)*
 ### JUMP FORWARD PLUGIN
 #### New Feature: Inline SVG icon for jump forward button

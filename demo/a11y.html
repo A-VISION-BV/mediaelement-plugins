@@ -3,37 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>MediaElement.js 4.2 - Accessibility Plugin</title>
-    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <title>MediaElement.js 7.0.7 - Accessibility Plugin</title>
+    <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon">
+    <link rel="icon" href="./favicon.ico" type="image/x-icon">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mediaelement/7.0.3/mediaelementplayer.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mediaelement/7.0.7/mediaelementplayer.min.css">
     <link rel="stylesheet" href="../dist/a11y/a11y.css">
-    <link rel="stylesheet" href="demo.css">
+    <link rel="stylesheet" href="./demo.css">
 </head>
 <body>
     <div id="container">
         <h1>Accessibility Plugin</h1>
-        <p><a href="index.html">Back to Main</a> </p>
+        <p><a href="./index.html">Back to Main</a> </p>
 
         <h2>Video Player (w/o Voice-Over)</h2>
         <div class="media-wrapper">
             <video id="player1" width="750" height="421" controls preload="none" playsinline
-                   data-video-description='[{"src": "https://video.aktion-mensch.de/magnolia/aktion-mensch-videoplayer/aktion-mensch_beispiel/aktion-mensch_beispiel_signlanguageVideo.mp4", "type": "video/mp4"}, {"src": "https://video.aktion-mensch.de/magnolia/aktion-mensch-videoplayer/aktion-mensch_beispiel/aktion-mensch_beispiel_signlanguageVideo.webm", "type": "video/webm"}, {"src": "https://video.aktion-mensch.de/magnolia/aktion-mensch-videoplayer/aktion-mensch_beispiel/aktion-mensch_beispiel_signlanguageVideo.ogv", "type": "video/ogv"}]'
-                   data-audio-description='[{"src": "https://video.aktion-mensch.de/magnolia/aktion-mensch_beispiel_audioDescription.mp3", "type": "audio/mp3"}]'
+                   poster="https://delivery-aktion-mensch.stylelabs.cloud/api/public/content/2e7945298d864445b79c120be1eeb87c"
+                   data-video-description='[{"src": "https://delivery-aktion-mensch.stylelabs.cloud/api/public/content/video-kampagne-begegnung-dgs.mp4", "type": "video/mp4"}]'
+                   data-audio-description='[{"src": "https://delivery-aktion-mensch.stylelabs.cloud/api/public/content/72091bbef9494cc6a8da57179d69099c", "type": "audio/x-wav"}]'
             >
-                <source src="https://video.aktion-mensch.de/magnolia/aktion-mensch_beispiel_video.mp4" type="video/mp4" />
-                <source src="https://video.aktion-mensch.de/magnolia/aktion-mensch_beispiel_video.webm" type="video/webm" />
-                <source src="https://video.aktion-mensch.de/magnolia/aktion-mensch_beispiel_video.ogv" type="video/ogg" />
+                <source src="https://delivery-aktion-mensch.stylelabs.cloud/api/public/content/0e7a69b999dc4dad8b632d323909d1a1" type="video/mp4" />
             </video>
+            <button onclick="player.remove()" style="margin: 20px 0">Remove</button>
         </div>
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mediaelement/4.2.9/mediaelement-and-player.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mediaelement/7.0.7/mediaelement-and-player.min.js"></script>
     <script src="../dist/a11y/a11y.js"></script>
     <script>
-        new MediaElementPlayer('player1', {
+        const player = new MediaElementPlayer('player1', {
             features: ['playpause', 'current', 'progress', 'duration', 'volume', 'a11y', 'fullscreen'],
+            iconSprite: 'mejs-controls.svg',
+            iconSpritePathA11y: 'mejs-a11y-icons.svg'
         });
     </script>
 </body>
