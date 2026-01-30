@@ -18,7 +18,7 @@ Object.assign(mejs.MepDefaults, {
 
     /**
      * Store for initial source file
-     * @type ?{src: String, type: String}
+     * @type {?{src: String, type: String}}
      */
     defaultSource: null,
 
@@ -75,10 +75,101 @@ Object.assign(MediaElementPlayer.prototype, {
         if (t.options.audioDescriptionSource) t._createAudioDescription();
         if (t.options.videoDescriptionSource) t._createVideoDescription();
 
-        t.media.addEventListener('play', () => t.options.isPlaying = true);
-        t.media.addEventListener('playing', () => t.options.isPlaying = true);
-        t.media.addEventListener('pause', () => t.options.isPlaying = false);
-        t.media.addEventListener('ended', () => t.options.isPlaying = false);
+        // Store references to event handlers for cleanup
+        t.a11yPlayHandler = () => t.options.isPlaying = true;
+        t.a11yPlayingHandler = () => t.options.isPlaying = true;
+        t.a11yPauseHandler = () => t.options.isPlaying = false;
+        t.a11yEndedHandler = () => t.options.isPlaying = false;
+
+        t.media.addEventListener('play', t.a11yPlayHandler);
+        t.media.addEventListener('playing', t.a11yPlayingHandler);
+        t.media.addEventListener('pause', t.a11yPauseHandler);
+        t.media.addEventListener('ended', t.a11yEndedHandler);
+    },
+
+    cleana11y (player, layers, controls, media) {
+        const t = this;
+
+        // Remove main media event listeners
+        if (t.a11yPlayHandler) {
+            media.removeEventListener('play', t.a11yPlayHandler);
+            media.removeEventListener('playing', t.a11yPlayingHandler);
+            media.removeEventListener('pause', t.a11yPauseHandler);
+            media.removeEventListener('ended', t.a11yEndedHandler);
+        }
+
+        // Clean up audio description button and click handler
+        if (t.audioDescriptionButton && t.audioDescriptionClickHandler) {
+            t.audioDescriptionButton.removeEventListener('click', t.audioDescriptionClickHandler);
+            t.audioDescriptionButton = null;
+            t.audioDescriptionClickHandler = null;
+        }
+
+        // Clean up video description button and click handler
+        if (t.videoDescriptionButton && t.videoDescriptionClickHandler) {
+            t.videoDescriptionButton.removeEventListener('click', t.videoDescriptionClickHandler);
+            t.videoDescriptionButton = null;
+            t.videoDescriptionClickHandler = null;
+        }
+
+        // Clean up audio description player if it exists
+        if (t.audioDescription) {
+            // Remove all event listeners from the audio description node
+            if (t.audioDescriptionPlayHandler) {
+                media.removeEventListener('play', t.audioDescriptionPlayHandler);
+            }
+            if (t.audioDescriptionPlayingHandler) {
+                media.removeEventListener('playing', t.audioDescriptionPlayingHandler);
+            }
+            if (t.audioDescriptionPauseHandler) {
+                media.removeEventListener('pause', t.audioDescriptionPauseHandler);
+            }
+            if (t.audioDescriptionWaitingHandler) {
+                media.removeEventListener('waiting', t.audioDescriptionWaitingHandler);
+            }
+            if (t.audioDescriptionEndedHandler) {
+                media.removeEventListener('ended', t.audioDescriptionEndedHandler);
+            }
+            if (t.audioDescriptionTimeupdateHandler) {
+                media.removeEventListener('timeupdate', t.audioDescriptionTimeupdateHandler);
+            }
+            if (t.audioDescriptionVolumechangeHandler) {
+                media.removeEventListener('volumechange', t.audioDescriptionVolumechangeHandler);
+            }
+            if (t.audioDescriptionCanplayHandler) {
+                t.audioDescription.node.removeEventListener('canplay', t.audioDescriptionCanplayHandler);
+            }
+
+            // MediaElement will clone the <audio> element in the remove() call, so we need to store the ID here for later removal
+            const clonedAudioId = t.audioDescription.node.getAttribute('id')
+                .replace(`_${media.rendererName}`, '');
+
+            // Remove the audio description player
+            t.audioDescription.remove()
+            t.audioDescription = null;
+
+            // Remove the cloned audio element from the DOM
+            const clonedAudioElement = document.getElementById(clonedAudioId);
+            if (clonedAudioElement) {
+                clonedAudioElement.parentNode.removeChild(clonedAudioElement);
+            }
+        }
+
+        // Restore video volume button if it was hidden
+        if (t.videoVolumeButton) {
+            mejs.Utils.removeClass(t.videoVolumeButton, 'hidden');
+            t.videoVolumeButton = null;
+        }
+
+        // Clean up descriptive volume button reference
+        if (t.descriptiveVolumeButton) {
+            t.descriptiveVolumeButton = null;
+        }
+
+        // Reset state
+        t.options.audioDescriptionToggled = false;
+        t.options.videoDescriptionToggled = false;
+        t.options.audioDescriptionCanPlay = false;
     },
 
     /**
@@ -93,7 +184,7 @@ Object.assign(MediaElementPlayer.prototype, {
     },
 
     /**
-     * Generates an HTML for an SVG icon. 
+     * Generates an HTML for an SVG icon.
      * @private
      * @param {String} id - ID of the MediaElement player
      * @param {String} classPrefix - Prefix for the class attribute
@@ -121,12 +212,16 @@ Object.assign(MediaElementPlayer.prototype, {
 
         t.addControlElement(audioDescriptionButton, 'audio-description');
 
-        audioDescriptionButton.addEventListener('click', () => {
+        // Store reference to button and handler for cleanup
+        t.audioDescriptionButton = audioDescriptionButton;
+        t.audioDescriptionClickHandler = () => {
             t.options.audioDescriptionToggled = !t.options.audioDescriptionToggled;
             mejs.Utils.toggleClass(audioDescriptionButton, 'audio-description-on');
 
             t._toggleAudioDescription();
-        });
+        };
+
+        audioDescriptionButton.addEventListener('click', t.audioDescriptionClickHandler);
     },
 
     /**
@@ -143,12 +238,16 @@ Object.assign(MediaElementPlayer.prototype, {
         videoDescriptionButton.innerHTML = `<button type="button" aria-controls="${t.id}" title="${videoDescriptionTitle}" aria-label="${videoDescriptionTitle}" tabindex="0">${iconHtml}</button>`;
         t.addControlElement(videoDescriptionButton, 'video-description');
 
-        videoDescriptionButton.addEventListener('click', () => {
+        // Store reference to button and handler for cleanup
+        t.videoDescriptionButton = videoDescriptionButton;
+        t.videoDescriptionClickHandler = () => {
             t.options.videoDescriptionToggled = !t.options.videoDescriptionToggled;
             mejs.Utils.toggleClass(videoDescriptionButton, 'video-description-on');
 
             t._toggleVideoDescription();
-        });
+        };
+
+        videoDescriptionButton.addEventListener('click', t.videoDescriptionClickHandler);
     },
 
     /**
@@ -194,7 +293,7 @@ Object.assign(MediaElementPlayer.prototype, {
      * Evaluate the best matching source from an array of sources
      * @private
      * @param {Array.<{src: String, type: String}>} sources
-     * @returns ?{src: String, type: String} source
+     * @returns {?{src: String, type: String}} source
      */
     _evaluateBestMatchingSource(sources) {
         const getMimeFromType = type => mejs.Utils.getMimeFromType(type);
@@ -202,8 +301,8 @@ Object.assign(MediaElementPlayer.prototype, {
         const matchesBrowser = file => canPlayType(getMimeFromType(file.type));
 
         // checking most likely support
-        const propablySource = sources.find(file => matchesBrowser(file) === 'probably');
-        if (propablySource) return propablySource;
+        const probablySource = sources.find(file => matchesBrowser(file) === 'probably');
+        if (probablySource) return probablySource;
 
         // checking might support
         const alternativeSource = sources.find(file => matchesBrowser(file) === 'maybe');
@@ -237,24 +336,36 @@ Object.assign(MediaElementPlayer.prototype, {
             iconSprite: t.options.iconSprite,
             // use same nodeName as in video
             fakeNodeName: t.options.fakeNodeName || 'mediaelementwrapper',
+            // Screen reader title is not needed because the audio description player is always hidden.
+            hideScreenReaderTitle: true,
         });
 
-        t.audioDescription.node.addEventListener('canplay', () => t.options.audioDescriptionCanPlay = true);
-        t.media.addEventListener('play', () => t.audioDescription.node.play().catch(e => console.error(e)));
-        t.media.addEventListener('playing', () => t.audioDescription.node.play().catch(e => console.error(e)));
-        t.media.addEventListener('pause', () => t.audioDescription.node.pause());
-        t.media.addEventListener('waiting', () => t.audioDescription.node.pause());
-        t.media.addEventListener('ended', () => t.audioDescription.node.pause());
-        t.media.addEventListener('timeupdate', () => {
+        // Store event handler references for cleanup
+        t.audioDescriptionCanplayHandler = () => t.options.audioDescriptionCanPlay = true;
+        t.audioDescriptionPlayHandler = () => t.audioDescription.node.play().catch(e => console.error(e));
+        t.audioDescriptionPlayingHandler = () => t.audioDescription.node.play().catch(e => console.error(e));
+        t.audioDescriptionPauseHandler = () => t.audioDescription.node.pause();
+        t.audioDescriptionWaitingHandler = () => t.audioDescription.node.pause();
+        t.audioDescriptionEndedHandler = () => t.audioDescription.node.pause();
+        t.audioDescriptionTimeupdateHandler = () => {
             const shouldSync = Math.abs(t.currentTime - t.audioDescription.node.currentTime) > 0.35;
             const canPlay = t.options.audioDescriptionCanPlay;
             if (shouldSync && canPlay) t.audioDescription.node.currentTime = t.currentTime;
-        });
+        };
+
+        t.audioDescription.node.addEventListener('canplay', t.audioDescriptionCanplayHandler);
+        t.media.addEventListener('play', t.audioDescriptionPlayHandler);
+        t.media.addEventListener('playing', t.audioDescriptionPlayingHandler);
+        t.media.addEventListener('pause', t.audioDescriptionPauseHandler);
+        t.media.addEventListener('waiting', t.audioDescriptionWaitingHandler);
+        t.media.addEventListener('ended', t.audioDescriptionEndedHandler);
+        t.media.addEventListener('timeupdate', t.audioDescriptionTimeupdateHandler);
 
         // if audio description is voice over, map volume slider to both players
         // otherwise move the audio players volume slider inside the movie player to simulate normal volume handling
         if(t.options.isVoiceover) {
-            t.media.addEventListener('volumechange', () => t.audioDescription.node.volume = t.node.volume);
+            t.audioDescriptionVolumechangeHandler = () => t.audioDescription.node.volume = t.node.volume;
+            t.media.addEventListener('volumechange', t.audioDescriptionVolumechangeHandler);
         } else {
             const volumeButtonClass = `${t.options.classPrefix}volume-button`;
             const videoVolumeButton = t._getFirstChildNodeByClassName(t.controls, volumeButtonClass);
