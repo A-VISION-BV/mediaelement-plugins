@@ -1,6 +1,6 @@
 {
   "name": "@A-VISION-BV/mediaelement-plugins",
-  "version": "4.1.6",
+  "version": "5.1.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/A-VISION-BV/mediaelement-plugins.git"
@@ -44,6 +44,9 @@
   },
   "dependencies": {
     "global": "^4.3.1"
+  },
+  "peerDependencies": {
+    "mediaelement": ">=5.0.1"
   },
   "browserify": {
     "extensions": [

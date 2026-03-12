@@ -30,12 +30,13 @@ Instructions for the Maintainer
 
   grunt
 
-- add/commit/push all including build/
+- add/commit/push all including dist/
 
-  git add --all
-  git commit -am "release 4.X.X"
-  git push
-
+```
+git add --all
+git commit -am "release 4.X.X"
+git push
+```
 
 **********************
  PREPARING A RELEASE - second step on github.com

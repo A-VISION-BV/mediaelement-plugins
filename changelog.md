@@ -1,5 +1,26 @@
 # Version History
 
+## *5.1.0 (2026/01/30)*
+* `mediaelement` is now a `peerDependency` of this project. This will prevent multiple installations of `mediaelement` in your project.
+### A11Y PLUGIN
+* Demo page was updated with working media assets. Fixes #261
+* Plugin is now cleaned up properly when the player is destroyed.
+
+## *5.0.0 (2024/09/12)*
+### JUMP FORWARD PLUGIN
+#### New Feature: Inline SVG icon for jump forward button
+* Setting `iconSpritePathJumpForward`: This option enables you to define the path to your SVG icon sprite. When specified, it allows for dynamic generation of inline SVG icons, which will be displayed on the jump forward button. Further information can be found [here](docs/jump-forward.md).
+* Important CSS Adjustment: If you're planning to use `iconSpritePathJumpForward` and your current setup includes background icons defined in CSS, you'll need to make a small but crucial update to your CSS file. Please remove any CSS rules that apply background icons to these buttons. This step is necessary to prevent the display of both SVG and background icons simultaneously.
+
+### SKIP BACK PLUGIN
+#### New Feature: Inline SVG icon for skip back button
+* Setting `iconSpritePathSkipBack`: This option enables you to define the path to your SVG icon sprite. When specified, it allows for dynamic generation of inline SVG icons, which will be displayed on the skip back button. Further information can be found [here](docs/skip-back.md).
+* Important CSS Adjustment: If you're planning to use `iconSpritePathSkipBack` and your current setup includes background icons defined in CSS, you'll need to make a small but crucial update to your CSS file. Please remove any CSS rules that apply background icons to these buttons. This step is necessary to prevent the display of both SVG and background icons simultaneously.
+
+## *4.0.1 (2024/09/09)*
+### SPEED PLUGIN
+* Fix always controlling the first player on the page via keyboard when multiple players exist.
+
 ## *4.0.0 (2024/03/11)*
 This release marks a major version update to address and correct previous versioning inaccuracies. The transition from version 3.0.0 to 3.0.1 introduced changes that, upon further review, have been identified as breaking. These changes warranted a more significant version increment to reflect their impact accurately.
 
