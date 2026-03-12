@@ -136,16 +136,6 @@ Object.assign(MediaElementPlayer.prototype, {
 			menuIsHidden = false;
 		}
 
-		player.speedRadioButtons = radios;
-
-		for (var _i2 = 0, total = inEvents.length; _i2 < total; _i2++) {
-			player.speedButton.addEventListener(inEvents[_i2], function () {
-				mejs.Utils.removeClass(player.speedSelector, t.options.classPrefix + 'offscreen');
-				player.speedSelector.style.height = player.speedSelector.querySelector('ul').offsetHeight;
-				player.speedSelector.style.top = -1 * parseFloat(player.speedSelector.offsetHeight) + 'px';
-			});
-		}
-
 		function hideMenu() {
 			var now = Date.now();
 			var diff = now - lastShowChange;
@@ -188,14 +178,14 @@ Object.assign(MediaElementPlayer.prototype, {
 			event.stopPropagation();
 		});
 
-		for (var _i3 = 0, _total = radios.length; _i3 < _total; _i3++) {
-			var radio = radios[_i3];
+		for (var _i2 = 0, total = radios.length; _i2 < total; _i2++) {
+			var radio = radios[_i2];
 			radio.disabled = false;
 			radio.addEventListener('change', handleChangeSpeed);
 		}
 
-		for (var _i4 = 0, _total2 = labels.length; _i4 < _total2; _i4++) {
-			labels[_i4].addEventListener('click', function () {
+		for (var _i3 = 0, _total = labels.length; _i3 < _total; _i3++) {
+			labels[_i3].addEventListener('click', function () {
 				var radio = mejs.Utils.siblings(this, function (el) {
 					return el.tagName === 'INPUT';
 				})[0],
@@ -208,40 +198,6 @@ Object.assign(MediaElementPlayer.prototype, {
 		function updateSpeedButtonLabel() {
 			speedButtonLabel.innerHTML = getSpeedNameFromValue(currentPlaybackSpeed);
 		}
-
-		t.options.keyActions.push({
-			keys: [60, 188],
-			action: function action(player, media, key, event) {
-				if (event.key != '<') return;
-
-				var _radios = player.speedRadioButtons;
-				for (var _i5 = 0; _i5 < _radios.length - 1; _i5++) {
-					if (_radios[_i5].checked) {
-						var nextRadio = _radios[_i5 + 1];
-						nextRadio.dispatchEvent(mejs.Utils.createEvent('click', nextRadio));
-						break;
-					}
-				}
-			}
-		}, {
-			keys: [62, 190],
-			action: function action(player, media, key, event) {
-				if (event.key != '>') return;
-
-				var _radios = player.speedRadioButtons;
-				for (var _i6 = 1; _i6 < _radios.length; _i6++) {
-					if (_radios[_i6].checked) {
-						var prevRadio = _radios[_i6 - 1];
-						prevRadio.dispatchEvent(mejs.Utils.createEvent('click', prevRadio));
-						break;
-					}
-				}
-			}
-		});
-
-		player.speedSelector.addEventListener('keydown', function (e) {
-			e.stopPropagation();
-		});
 
 		media.addEventListener('loadedmetadata', function () {
 			if (currentPlaybackSpeed) {
@@ -258,15 +214,15 @@ Object.assign(MediaElementPlayer.prototype, {
 			updateSpeedButtonLabel();
 
 			var total = radios.length;
-			for (var _i7 = 0; _i7 < total; _i7++) {
-				var _radio = radios[_i7];
+			for (var _i4 = 0; _i4 < total; _i4++) {
+				var _radio = radios[_i4];
 
 				mejs.Utils.removeClass(_radio, t.options.classPrefix + 'speed-selected-input');
 				var siblings = mejs.Utils.siblings(_radio, function (el) {
 					return mejs.Utils.hasClass(el, t.options.classPrefix + 'speed-selector-label');
 				});
-				for (var _i8 = 0, _total3 = siblings.length; _i8 < _total3; _i8++) {
-					mejs.Utils.removeClass(siblings[_i8], t.options.classPrefix + 'speed-selected');
+				for (var _i5 = 0, _total2 = siblings.length; _i5 < _total2; _i5++) {
+					mejs.Utils.removeClass(siblings[_i5], t.options.classPrefix + 'speed-selected');
 				}
 
 				var radioSpeed = Number(_radio.value);
@@ -279,8 +235,8 @@ Object.assign(MediaElementPlayer.prototype, {
 					var _siblings = mejs.Utils.siblings(_radio, function (el) {
 						return mejs.Utils.hasClass(el, t.options.classPrefix + 'speed-selector-label');
 					});
-					for (var _i9 = 0, _total4 = _siblings.length; _i9 < _total4; _i9++) {
-						mejs.Utils.addClass(_siblings[_i9], t.options.classPrefix + 'speed-selected');
+					for (var _i6 = 0, _total3 = _siblings.length; _i6 < _total3; _i6++) {
+						mejs.Utils.addClass(_siblings[_i6], t.options.classPrefix + 'speed-selected');
 					}
 				}
 			}
@@ -288,8 +244,8 @@ Object.assign(MediaElementPlayer.prototype, {
 
 		function handleChangeSpeed() {
 			var total = radios.length;
-			for (var _i10 = 0; _i10 < total; _i10++) {
-				var _radio2 = radios[_i10];
+			for (var _i7 = 0; _i7 < total; _i7++) {
+				var _radio2 = radios[_i7];
 
 				if (_radio2.checked) {
 					var newSpeed = Number(_radio2.value);
@@ -301,8 +257,8 @@ Object.assign(MediaElementPlayer.prototype, {
 		function getSpeedNameFromValue(speedValue) {
 			var numSpeedValue = Number(speedValue);
 			var length = speeds.length;
-			for (var _i11 = 0; _i11 < length; _i11++) {
-				var _speed2 = speeds[_i11];
+			for (var _i8 = 0; _i8 < length; _i8++) {
+				var _speed2 = speeds[_i8];
 				if (Number(_speed2.value) === numSpeedValue) {
 					return _speed2.name;
 				}
