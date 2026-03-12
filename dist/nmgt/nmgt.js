@@ -85,7 +85,6 @@ Object.assign(MediaElementPlayer.prototype, {
 
 		var lastShowChange = Date.now();
 		function showMenu() {
-			console.log('showMenu');
 			var now = Date.now();
 			var diff = now - lastShowChange;
 			if (diff < 16) {
@@ -110,7 +109,6 @@ Object.assign(MediaElementPlayer.prototype, {
 		}
 
 		function hideMenu() {
-			console.log('hideMenu');
 			var now = Date.now();
 			var diff = now - lastShowChange;
 			if (diff < 16) {
