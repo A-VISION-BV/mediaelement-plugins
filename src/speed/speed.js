@@ -213,22 +213,6 @@ Object.assign(MediaElementPlayer.prototype, {
 			
 			menuIsHidden = false;
 		}
-
-		/**
-		 * Store a reference to the radio buttons to prevent a scope bug in keyboard events
-		 * when multiple MediaElement players are on the same page. Otherwise these keyboard
-		 * events would always control the first speed button instance on the page.
-		 */
-		player.speedRadioButtons = radios;
-
-		// hover or keyboard focus
-		for (let i = 0, total = inEvents.length; i < total; i++) {
-			player.speedButton.addEventListener(inEvents[i], () => {
-				mejs.Utils.removeClass(player.speedSelector, `${t.options.classPrefix}offscreen`);
-				player.speedSelector.style.height = player.speedSelector.querySelector('ul').offsetHeight;
-				player.speedSelector.style.top = `${(-1 * parseFloat(player.speedSelector.offsetHeight))}px`;
-			});
-		}
 		
 		function hideMenu() {
 			const now = Date.now();
@@ -254,7 +238,6 @@ Object.assign(MediaElementPlayer.prototype, {
 				hideMenu();
 			}
 		}
-		
 		
 		speedButton.addEventListener('mouseenter', showMenu);
 		
@@ -300,49 +283,6 @@ Object.assign(MediaElementPlayer.prototype, {
 		function updateSpeedButtonLabel() {
 			speedButtonLabel.innerHTML = getSpeedNameFromValue(currentPlaybackSpeed)
 		}
-		
-
-		t.options.keyActions.push({
-			/*
-			 * Need to listen for both because keyActions dispatches
-			 * based on e.which || e.keyCode instead of e.key, so we
-			 * get the same value for comma as for less than.
-			 */
-			keys: [60, 188], // "<" & ","
-			action: (player, media, key, event) => {
-				if (event.key != '<')
-					return;
-
-				const _radios = player.speedRadioButtons;
-				for (let i = 0; i < _radios.length - 1; i++) {
-					if (_radios[i].checked) {
-						const nextRadio = _radios[i+1];
-						nextRadio.dispatchEvent(mejs.Utils.createEvent('click', nextRadio));
-						break;
-					}
-				}
-			}
-		}, {
-			keys: [62, 190], // ">" & "."
-			action: (player, media, key, event) => {
-				if (event.key != '>')
-					return;
-
-				const _radios = player.speedRadioButtons;
-				for (let i = 1; i < _radios.length; i++) {
-					if (_radios[i].checked) {
-						const prevRadio = _radios[i-1];
-						prevRadio.dispatchEvent(mejs.Utils.createEvent('click', prevRadio));
-						break;
-					}
-				}
-			}
-		});
-
-		//Allow up/down arrow to change the selected radio without changing the volume.
-		player.speedSelector.addEventListener('keydown', (e) => {
-			e.stopPropagation();
-		});
 
 		media.addEventListener('loadedmetadata', () => {
 			if (currentPlaybackSpeed) {
